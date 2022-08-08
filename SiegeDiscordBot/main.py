@@ -43,6 +43,9 @@ def main():
 
 @tasks.loop(seconds=60)
 async def custom_lobby_loop():
+    """
+    --- Task to remove custom lobbies
+    """
     for lobby_id in Lobbys.all:
         lobby = Bot.bot.get_channel(lobby_id)
         if len(lobby.voice_states.keys()) != 0:
@@ -54,6 +57,9 @@ async def custom_lobby_loop():
 
 @tasks.loop(seconds=1800)
 async def auto_save_loop():
+    """
+    --- Autosaving task
+    """
     logging.info('Autosaving...')
     User.save_instance_to_csv()
     logging.info('Autosaving completed')
@@ -61,7 +67,7 @@ async def auto_save_loop():
 @Bot.bot.command(pass_context=True)
 async def auth(ctx, name: str = None):
     """
-    --- Command for authorizing in bot
+    --- Authorize in bot
     """
     if not name:
         logging.warning(f"{ctx.author.name} tried to authorize without name")
@@ -72,41 +78,43 @@ async def auth(ctx, name: str = None):
 
     if User.is_authorized(ctx.author.id):
         logging.info(f"But he is already authorized. So unfair")
-        await ctx.send(messages.authorized)
+        await ctx.send(embed = embeds.already_authorized_embed())
         return None
 
     user = User(name, ctx.author.id)
-    embed = user.parse_stats()
+    embed, state = user.parse_stats()
     ref = discord.MessageReference(
         message_id=ctx.message.id,
         channel_id=ctx.channel.id, 
         guild_id=ctx.guild.id
         ) # Reference message
+    if state:
+        embed = embeds.succeseful_authorization()
     await ctx.send(embed=embed, reference=ref)
     logging.info(f"And he successfully authorized(maybe, cause i dont catch bad user name there, so look at message above). https://c.tenor.com/myWhE0y5rTsAAAAC/brent-rambo-thumbs-up.gif")
 
 @Bot.bot.command(pass_context=True)
 async def stats(ctx, value: str = None):
     """
-    --- Command for getting Rainow six player's statistics
+    --- Get siege stats from tabstats
     """
     logging.info(f"{ctx.author.name} raising w!stats")
     user = User.get_by_dID(ctx.author.id)
-    exeption_msg  = "Вы не авторизированы."
+    exeption_msg  = "You're not authorized."
     logger_msg = "He's not authorized"
 
     if value:
         logging.info(f"{ctx.author.name} raising w!stats with value: {value}!")
-        exeption_msg  = "Пользователь не авторизирован."
+        exeption_msg  = "User not authorized."
         logger_msg = f"User {value} not authorized"
         user =  names_helpers.get_user_by(value)
 
     if not user:
         logging.warning(f"{ctx.author.name} raising w!stats but there is a problem: {logger_msg}!")
-        await ctx.send(f"{exeption_msg} {messages.unauthorized}")
+        await ctx.send(embed = embeds.unauthorized_embed(exeption_msg))
         return None
 
-    embed = user.parse_stats()
+    embed, _ = user.parse_stats()
     ref = discord.MessageReference(
         message_id=ctx.message.id, 
         channel_id=ctx.channel.id, 
@@ -118,7 +126,7 @@ async def stats(ctx, value: str = None):
 @Bot.bot.command(pass_context=True)
 async def party(ctx, value: int = None):
     """
-    --- Command for finding party to play with
+    --- Create a party search announcement
     """
 
     logging.info(f"{ctx.author.name} want to created announcement in #поиск-пати")
@@ -149,6 +157,9 @@ async def party(ctx, value: int = None):
 
 @Bot.bot.command(pass_context=True)
 async def lock(ctx):
+    """
+    --- Create private voice channel
+    """
     logging.info(f"{ctx.author.name} want to create private room")
     category = ctx.guild.get_channel(config.cl_defaul_channel)
     try:
@@ -183,15 +194,6 @@ async def lock(ctx):
         await _member.move_to(custom_lobby, reason = "Перемещаю в лобби")
     Lobbys.add_lobby(custom_lobby.id)
     logging.info(f"Successfully created private channel to {ctx.author.name}")
-
-@Bot.bot.command(pass_context=True)
-async def UpdateMyRank(ctx):
-    """
-    --- plug for old UpdateMyRank command
-    """
-    await ctx.send("```w!auth [your siege name]\nw!help for more```")
-    logging.info(f"Oh. I remember these old days, when w!UpdateMyRank was still avalible")
-    logging.warning(f"But unfortunate to {ctx.author.name} now its not")
 
 @Bot.bot.command(pass_context=True)
 async def help(ctx):

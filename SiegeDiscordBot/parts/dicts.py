@@ -1,3 +1,7 @@
+"""
+--- This file just contains some dictionaries
+"""
+
 import json
 
 with open('roles_Ids.json', encoding='utf-8') as json_file:

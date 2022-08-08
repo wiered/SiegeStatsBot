@@ -13,6 +13,9 @@ class Lobbys:
             Lobbys.all.remove(lobby)
 
 def get_user_data(user, member, players, max_mmr):
+    """
+    --- Generate userdata and mention
+    """
     if not user:
         return f"{players} {member.mention}\n", max_mmr
     else:
@@ -26,8 +29,8 @@ def get_user_data(user, member, players, max_mmr):
 
 async def unpack_lobby(channel, guild):
     """
-    --- Getting all members in voice channel 
-        and setting up lobbys's max mmr
+    --- Get all members in voice channel 
+        and set lobbys's max mmr
     """
     members = list(channel.voice_states.keys())
     players = ""

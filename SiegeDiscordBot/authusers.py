@@ -37,7 +37,7 @@ class User:
     @classmethod
     def instantiate_from_csv(cls):
         """
-        --- Loading all authorized users from csv
+        --- Load all authorized users from csv
         """
         User.all.clear()
         logging.info('Instantiating from csv')
@@ -62,7 +62,7 @@ class User:
     @staticmethod
     def save_instance_to_csv():
         """
-        --- Saving all authorized users to csv
+        --- Save all authorized users to csv
         """
         logging.info('Saving instance to csv')
         header = ['siege_name', 'siege_ID', 'dID', 'rank']
@@ -86,7 +86,7 @@ class User:
     @staticmethod
     def get_by_dID(dID):
         """
-        --- Getting user by his discord ID
+        --- Get user by his discord ID
         """
         try:
             ind = User.__dIDs.index(dID)
@@ -99,7 +99,7 @@ class User:
     @staticmethod
     def is_authorized(dID) -> bool:
         """
-        --- Checking if user is authorized
+        --- Check if user is authorized
         """
         try:
             ind = User.__dIDs.index(dID)
@@ -121,7 +121,7 @@ class User:
 
     def __unpack_stats(self, r):
         """
-        --- Getting stats from response
+        --- Get stats from response
         """
         stats = {}
         logging.info(f"Unpacking raw stats")
@@ -157,7 +157,7 @@ class User:
 
     def __generate_embed(self, stats):
         """
-        --- Generating discord embed from user's stats
+        --- Generate discord embed from user's stats
         """
         embed=discord.Embed(title="Tabstats",  url=stats.get("url"), color=0x039bba)
 
@@ -181,7 +181,7 @@ class User:
 
     def parse_stats(self) -> discord.embeds.Embed:
         """
-        --- Parsing users's stats from tabstats with requests
+        --- Parse users's stats from tabstats with requests
         """
         logging.info("Parsing data from r6.apitab.net")
         payload = {'display_name': self.__siege_name, 'platform': 'uplay'}
@@ -196,13 +196,15 @@ class User:
                 self.__siege_ID = stats.get("siege_ID")
                 self.__rank = stats.get("rank")
             embed = self.__generate_embed(stats)
+            state = True
         except IndexError:
             if self.__dID != 0:
                 User.delete_by_dID(self.__dID)
             embed=discord.Embed(title="User not found",  url="https://c.tenor.com/4IAtK3rSgBcAAAAd/that-is-so-tragic-gerald-broflovski.gif", color=0x039bba)
+            state = False
             logging.warning(f"This is message above: User not found. He's not authorized.")
         
-        return embed
+        return embed, state
 
 
     def __repr__(self):
