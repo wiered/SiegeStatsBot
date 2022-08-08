@@ -7,7 +7,6 @@ intents = discord.Intents(messages=True, guilds=True)
 
 
 # importing parts
-import parts.messages as messages
 import parts.embeds as embeds
 import parts.names_helpers as names_helpers
 import parts.lobbys as lobbys
