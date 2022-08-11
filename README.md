@@ -5,7 +5,8 @@ Retrieve and View Rainbow Six: Siege Stats from tabstats.com in Discord Servers
 ## Installation
 
 ```
-$ setup.py install
+$ pip install requests
+$ pip install discord
 ```
 
 ## License
